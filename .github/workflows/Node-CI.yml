@@ -1,4 +1,4 @@
-name: linter-and-tests-check
+name: Node-CI
 on: push
 jobs:
   my-job:
