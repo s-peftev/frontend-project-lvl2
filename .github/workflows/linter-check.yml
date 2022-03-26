@@ -1,0 +1,12 @@
+name: linter-check
+on: push
+jobs:
+  my-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v2
+      - name: install
+        run: make install
+      - name: lint
+        run: make lint
