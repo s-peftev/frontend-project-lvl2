@@ -1,4 +1,3 @@
-import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import _ from 'lodash';
 
@@ -47,31 +46,22 @@ const renderDiff = (diff) => {
   return ['{', ...maped, '}'].join('\n');
 };
 
-const run = () => {
-  const program = new Command();
+const compareFiles = (file1, file2) => {
+  const fileData1 = JSON.parse(getFileData(file1));
+  const fileData2 = JSON.parse(getFileData(file2));
 
-  program
-    .name('gendiff')
-    .description('Compares two configuration files and shows a difference.')
-    .version('1.0.0')
-    .option('-f, --format <type>', 'output format')
-    .argument('<filepath1>')
-    .argument('<filepath2>')
-    .action((filepath1, filepath2) => {
-      const fileData1 = JSON.parse(getFileData(filepath1));
-      const fileData2 = JSON.parse(getFileData(filepath2));
+  const wastedData = getDifference(fileData1, fileData2, WASTED_MARK);
+  const addedData = getDifference(fileData2, fileData1, ADDED_MARK);
+  const intersectedData = getIntersection(fileData1, fileData2);
+  const allDiff = [...wastedData, ...addedData, ...intersectedData];
 
-      const wastedData = getDifference(fileData1, fileData2, WASTED_MARK);
-      const addedData = getDifference(fileData2, fileData1, ADDED_MARK);
-      const intersectedData = getIntersection(fileData1, fileData2);
-      const allDiff = [...wastedData, ...addedData, ...intersectedData];
-
-      console.log(renderDiff(allDiff));
-    });
-
-  program.parse(process.argv);
+  return renderDiff(allDiff);
 };
 
 export {
-  run, getFileData, getDifference, getIntersection, renderDiff,
+  compareFiles,
+  getFileData,
+  getDifference,
+  getIntersection,
+  renderDiff,
 };
