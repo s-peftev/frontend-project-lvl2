@@ -1,12 +1,12 @@
 import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
-import { compareFiles } from '../src/gendiff-index.js';
+import compareFiles from '../src/gendiff-index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 
-test('compareFiles', () => {
+test('compareFiles - test json', () => {
   const actual = `{
   - follow: false
     host: hexlet.io
@@ -15,8 +15,22 @@ test('compareFiles', () => {
   + timeout: 20
   + verbose: true
 }`;
-  const filepath1 = getFixturePath('file1.json');
-  const filepath2 = getFixturePath('file2.json');
+  const filepath1 = getFixturePath('jsonFile1.json');
+  const filepath2 = getFixturePath('jsonFile2.json');
+  expect(compareFiles(filepath1, filepath2)).toEqual(actual);
+});
+
+test('compareFiles - test yaml', () => {
+  const actual = `{
+  - follow: false
+    host: hexlet.io
+  - proxy: 123.234.53.22
+  - timeout: 50
+  + timeout: 20
+  + verbose: true
+}`;
+  const filepath1 = getFixturePath('yamlFile1.yml');
+  const filepath2 = getFixturePath('yamlFile2.yml');
   expect(compareFiles(filepath1, filepath2)).toEqual(actual);
 });
 

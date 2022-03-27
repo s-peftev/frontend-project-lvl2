@@ -1,19 +1,9 @@
-import { readFileSync } from 'fs';
 import _ from 'lodash';
+import getParsedData from './parsers.js';
 
 const WASTED_MARK = '  -';
 const ADDED_MARK = '  +';
 const SAME_MARK = '   ';
-
-const getFileData = (filepath) => {
-  try {
-    const data = readFileSync(filepath, 'utf8');
-    return data;
-  } catch (e) {
-    console.log(e);
-    return null;
-  }
-};
 
 const getDifference = (data1, data2, mark) => {
   const entries = Object.entries(data1);
@@ -46,9 +36,9 @@ const renderDiff = (diff) => {
   return ['{', ...maped, '}'].join('\n');
 };
 
-const compareFiles = (file1, file2) => {
-  const fileData1 = JSON.parse(getFileData(file1));
-  const fileData2 = JSON.parse(getFileData(file2));
+export default (file1, file2) => {
+  const fileData1 = getParsedData(file1);
+  const fileData2 = getParsedData(file2);
 
   const wastedData = getDifference(fileData1, fileData2, WASTED_MARK);
   const addedData = getDifference(fileData2, fileData1, ADDED_MARK);
@@ -56,12 +46,4 @@ const compareFiles = (file1, file2) => {
   const allDiff = [...wastedData, ...addedData, ...intersectedData];
 
   return renderDiff(allDiff);
-};
-
-export {
-  compareFiles,
-  getFileData,
-  getDifference,
-  getIntersection,
-  renderDiff,
 };
