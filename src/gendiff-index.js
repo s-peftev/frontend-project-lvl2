@@ -10,12 +10,10 @@ const stylishFormarter = (diff, TABcount = 0) => {
   };
   const defaultIndentBar = '  ';
   const iterIndentBar = '    ';
-  const indentCount = TABcount;
   const nextIndentCount = TABcount + 1;
-  const indent = [iterIndentBar.repeat(indentCount), defaultIndentBar].join('');
+  const indent = [iterIndentBar.repeat(TABcount), defaultIndentBar].join('');
 
-  const entries = Object.entries(diff);
-  const sorted = _.sortBy(entries, ([key]) => key);
+  const sorted = _.sortBy(Object.entries(diff), ([key]) => key);
   const maped = sorted.map(([key, body]) => {
     if (Object.hasOwn(body, 'value')) {
       const sign = typeSignMap[body.type];
@@ -37,14 +35,12 @@ const stylishFormarter = (diff, TABcount = 0) => {
 
       return `${indent}${deletedSign} ${key}: ${fromValue}\n${indent}${addedSign} ${key}: ${toValue}`;
     }
-    if (_.isObject(body)) {
-      return `${indent}  ${key}: ${stylishFormarter(body, nextIndentCount)}`;
-    }
-
-    return `${indent}  ${key}: ${body}`;
+    const value = _.isObject(body)
+      ? stylishFormarter(body, nextIndentCount)
+      : body;
+    return `${indent}  ${key}: ${value}`;
   });
-
-  return `{\n${maped.join('\n')}\n${iterIndentBar.repeat(indentCount)}}`;
+  return `{\n${maped.join('\n')}\n${iterIndentBar.repeat(TABcount)}}`;
 };
 
 const getFormarter = (formarterName) => {
