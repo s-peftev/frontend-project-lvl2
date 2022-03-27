@@ -13,43 +13,29 @@ const stylishFormarter = (diff, TABcount = 0) => {
   const indentCount = TABcount;
   const nextIndentCount = TABcount + 1;
   const indent = [iterIndentBar.repeat(indentCount), defaultIndentBar].join('');
+
   const entries = Object.entries(diff);
   const sorted = _.sortBy(entries, ([key]) => key);
   const maped = sorted.map(([key, body]) => {
-    if (
-      body.type === 'added'
-      || body.type === 'deleted'
-      || body.type === 'same'
-    ) {
-      return _.isObject(body.value)
-        ? `${indent}${typeSignMap[body.type]} ${key}: ${stylishFormarter(
-          body.value,
-          nextIndentCount,
-        )}`
-        : `${indent}${typeSignMap[body.type]} ${key}: ${body.value}`;
+    if (Object.hasOwn(body, 'value')) {
+      const sign = typeSignMap[body.type];
+      const value = _.isObject(body.value)
+        ? stylishFormarter(body.value, nextIndentCount)
+        : body.value;
+
+      return `${indent}${sign} ${key}: ${value}`;
     }
-    if (body.type === 'changed') {
-      if (_.isObject(body.children)) {
-        return `${indent}${typeSignMap[body.type]} ${key}: ${stylishFormarter(
-          body.children,
-          nextIndentCount,
-        )}`;
-      }
-      if (_.isObject(body.fromValue)) {
-        return `${indent}${typeSignMap.deleted} ${key}: ${stylishFormarter(
-          body.fromValue,
-          nextIndentCount,
-        )}\n${indent}${typeSignMap.added} ${key}: ${body.toValue}`;
-      }
-      if (_.isObject(body.toValue)) {
-        return `${indent}${typeSignMap.deleted} ${key}: ${
-          body.fromValue
-        }\n${indent}${typeSignMap.added} ${key}: ${stylishFormarter(
-          body.toValue,
-          nextIndentCount,
-        )}`;
-      }
-      return `${indent}${typeSignMap.deleted} ${key}: ${body.fromValue}\n${indent}${typeSignMap.added} ${key}: ${body.toValue}`;
+    if (Object.hasOwn(body, 'fromValue')) {
+      const deletedSign = typeSignMap.deleted;
+      const addedSign = typeSignMap.added;
+      const fromValue = _.isObject(body.fromValue)
+        ? stylishFormarter(body.fromValue, nextIndentCount)
+        : body.fromValue;
+      const toValue = _.isObject(body.toValue)
+        ? stylishFormarter(body.toValue, nextIndentCount)
+        : body.toValue;
+
+      return `${indent}${deletedSign} ${key}: ${fromValue}\n${indent}${addedSign} ${key}: ${toValue}`;
     }
     if (_.isObject(body)) {
       return `${indent}  ${key}: ${stylishFormarter(body, nextIndentCount)}`;
@@ -97,7 +83,7 @@ const getIntersection = (data1, data2, callback) => {
       if (_.isObject(value) && _.isObject(data2[key])) {
         diff[key] = {
           type: 'changed',
-          children: callback(value, data2[key]),
+          value: callback(value, data2[key]),
         };
       }
     }
