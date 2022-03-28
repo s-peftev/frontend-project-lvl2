@@ -3,13 +3,8 @@ import yaml from 'js-yaml';
 import path from 'path';
 
 const getFileData = (filepath) => {
-  try {
-    const data = readFileSync(filepath, 'utf8');
-    return data;
-  } catch (e) {
-    console.log(e);
-    return null;
-  }
+  const data = readFileSync(filepath, 'utf8');
+  return data;
 };
 
 const getParser = (fileExtension) => {
