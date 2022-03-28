@@ -1,44 +1,86 @@
 import _ from 'lodash';
 
-const TYPE_SIGN_MAP = {
+const defaultIndentBar = '  ';
+const iterIndentBar = '    ';
+const getIndent = (TABcount) => [iterIndentBar.repeat(TABcount), defaultIndentBar].join('');
+const DIFF_SIGN_MAP = {
   deleted: '-',
   added: '+',
   same: ' ',
-  changed: ' ',
+  updated: ' ',
+  nested: ' ',
+};
+
+// render for DAS (Deleted, Added, Same)
+const renderDAS = (key, body, diffSign, formartter, TABcount) => {
+  const indent = getIndent(TABcount);
+  const value = _.isObject(body.value)
+    ? formartter(body.value, TABcount + 1)
+    : body.value;
+
+  return `${indent}${diffSign} ${key}: ${value}`;
+};
+
+const renderUpdated = (key, body, diffSign, formartter, TABcount) => {
+  const indent = getIndent(TABcount);
+
+  if (Object.hasOwn(body.value, 'fromValue')) {
+    const deletedSign = DIFF_SIGN_MAP.deleted;
+    const addedSign = DIFF_SIGN_MAP.added;
+    const changed = body.value;
+    const fromValue = _.isObject(changed.fromValue)
+      ? formartter(changed.fromValue, TABcount + 1)
+      : changed.fromValue;
+    const toValue = _.isObject(changed.toValue)
+      ? formartter(changed.toValue, TABcount + 1)
+      : changed.toValue;
+
+    return `${indent}${deletedSign} ${key}: ${fromValue}\n${indent}${addedSign} ${key}: ${toValue}`;
+  }
+
+  return `${indent}${diffSign} ${key}: ${formartter(body.value, TABcount + 1)}`;
+};
+
+const renderNestedComplex = (key, body, diffSign, formartter, TABcount) => {
+  const indent = getIndent(TABcount);
+  const value = _.isObject(body) ? formartter(body, TABcount + 1) : body;
+
+  return `${indent}${diffSign} ${key}: ${value}`;
+};
+
+const TYPE_RENDER_MAP = {
+  deleted: (key, body, formartter, TABcount) => {
+    const diffSign = DIFF_SIGN_MAP[body.type];
+    return renderDAS(key, body, diffSign, formartter, TABcount);
+  },
+  added: (key, body, formartter, TABcount) => {
+    const diffSign = DIFF_SIGN_MAP[body.type];
+    return renderDAS(key, body, diffSign, formartter, TABcount);
+  },
+  same: (key, body, formartter, TABcount) => {
+    const diffSign = DIFF_SIGN_MAP[body.type];
+    return renderDAS(key, body, diffSign, formartter, TABcount);
+  },
+  updated: (key, body, formartter, TABcount) => {
+    const diffSign = DIFF_SIGN_MAP[body.type];
+    return renderUpdated(key, body, diffSign, formartter, TABcount);
+  },
+  nestedComlex: (key, body, formartter, TABcount) => {
+    const diffSign = DIFF_SIGN_MAP.nested;
+    return renderNestedComplex(key, body, diffSign, formartter, TABcount);
+  },
 };
 
 const stylishFormarter = (diff, TABcount = 0) => {
-  const defaultIndentBar = '  ';
-  const iterIndentBar = '    ';
-  const indent = [iterIndentBar.repeat(TABcount), defaultIndentBar].join('');
-
   const sorted = _.sortBy(Object.entries(diff), ([key]) => key);
   const maped = sorted.map(([key, body]) => {
-    if (Object.hasOwn(body, 'value')) {
-      const sign = TYPE_SIGN_MAP[body.type];
-      const value = _.isObject(body.value)
-        ? stylishFormarter(body.value, TABcount + 1)
-        : body.value;
+    const resultRender = Object.hasOwn(body, 'value')
+      ? TYPE_RENDER_MAP[body.type]
+      : TYPE_RENDER_MAP.nestedComlex;
 
-      return `${indent}${sign} ${key}: ${value}`;
-    }
-    if (Object.hasOwn(body, 'fromValue')) {
-      const deletedSign = TYPE_SIGN_MAP.deleted;
-      const addedSign = TYPE_SIGN_MAP.added;
-      const fromValue = _.isObject(body.fromValue)
-        ? stylishFormarter(body.fromValue, TABcount + 1)
-        : body.fromValue;
-      const toValue = _.isObject(body.toValue)
-        ? stylishFormarter(body.toValue, TABcount + 1)
-        : body.toValue;
-
-      return `${indent}${deletedSign} ${key}: ${fromValue}\n${indent}${addedSign} ${key}: ${toValue}`;
-    }
-    const value = _.isObject(body)
-      ? stylishFormarter(body, TABcount + 1)
-      : body;
-    return `${indent}  ${key}: ${value}`;
+    return resultRender(key, body, stylishFormarter, TABcount);
   });
+
   return `{\n${maped.join('\n')}\n${iterIndentBar.repeat(TABcount)}}`;
 };
 

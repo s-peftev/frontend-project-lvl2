@@ -24,12 +24,15 @@ const getIntersection = (data1, data2, callback) => {
       if (!_.isObject(value) || !_.isObject(data2[key])) {
         diff[key] = value === data2[key]
           ? { type: 'same', value }
-          : { type: 'changed', fromValue: value, toValue: data2[key] };
+          : {
+            type: 'updated',
+            value: { fromValue: value, toValue: data2[key] },
+          };
       }
 
       if (_.isObject(value) && _.isObject(data2[key])) {
         diff[key] = {
-          type: 'changed',
+          type: 'updated',
           value: callback(value, data2[key]),
         };
       }
@@ -48,14 +51,10 @@ const getDiffReport = (data1, data2) => {
 };
 
 export default (file1, file2, formarterName = 'stylish') => {
-  try {
-    const fileData1 = getParsedData(file1);
-    const fileData2 = getParsedData(file2);
-    const diff = getDiffReport(fileData1, fileData2);
-    const formarter = getFormarter(formarterName);
+  const fileData1 = getParsedData(file1);
+  const fileData2 = getParsedData(file2);
+  const diff = getDiffReport(fileData1, fileData2);
+  const formarter = getFormarter(formarterName);
 
-    return formarter(diff);
-  } catch (e) {
-    return e;
-  }
+  return formarter(diff);
 };

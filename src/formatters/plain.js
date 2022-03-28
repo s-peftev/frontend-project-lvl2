@@ -1,58 +1,54 @@
 import _ from 'lodash';
 
-const deletedRender = (key, body, callback) => {
+const complexValuePlaceholder = '[complex value]';
 
-};
+const isDeleted = (diffBody) => diffBody.type === 'deleted';
+const isAdded = (diffBody) => diffBody.type === 'added';
+const isUpdated = (diffBody) => diffBody.type === 'updated';
+const getStyledValue = (value) => {
+  if (typeof value === 'string' && value !== complexValuePlaceholder) {
+    return `'${value}'`;
+  }
 
-const addedRender = (key, body, callback) => {
-
-};
-
-const updatedRender = (key, body, callback) => {
-
-};
-const TYPE_SIGN_MAP = {
-  deleted: (key, body, callback) => deletedRender(key, body, callback),
-  added: (key, body, callback) => addedRender(key, body, callback),
-  changed: (key, body, callback) => updatedRender(key, body, callback),
+  return value;
 };
 
 const plainFormarter = (diff, parrent = '') => {
   const sorted = _.sortBy(Object.entries(diff), ([key]) => key);
-  const maped = sorted.map(([key, body]) => {
-    if (Object.hasOwn(body, 'type')) {
-
+  const maped = sorted.flatMap(([key, body]) => {
+    if (isDeleted(body)) {
+      return `Property '${parrent}${key}' was removed`;
     }
-  });
-  /* const sorted = _.sortBy(Object.entries(diff), ([key]) => key);
-  const maped = sorted.map(([key, body]) => {
-    if (Object.hasOwn(body, 'value')) {
-      const sign = TYPE_SIGN_MAP[body.type];
+    if (isAdded(body)) {
       const value = _.isObject(body.value)
-        ? plainFormarter(body.value, TABcount + 1)
+        ? complexValuePlaceholder
         : body.value;
 
-      return `${indent}${sign} ${key}: ${value}`;
+      return `Property '${parrent}${key}' was added with value: ${getStyledValue(
+        value,
+      )}`;
     }
-    if (Object.hasOwn(body, 'fromValue')) {
-      const deletedSign = TYPE_SIGN_MAP.deleted;
-      const addedSign = TYPE_SIGN_MAP.added;
-      const fromValue = _.isObject(body.fromValue)
-        ? plainFormarter(body.fromValue, TABcount + 1)
-        : body.fromValue;
-      const toValue = _.isObject(body.toValue)
-        ? plainFormarter(body.toValue, TABcount + 1)
-        : body.toValue;
+    if (isUpdated(body)) {
+      if (Object.hasOwn(body.value, 'fromValue')) {
+        const changed = body.value;
+        const fromValue = _.isObject(changed.fromValue)
+          ? complexValuePlaceholder
+          : changed.fromValue;
+        const toValue = _.isObject(changed.toValue)
+          ? complexValuePlaceholder
+          : changed.toValue;
 
-      return `${indent}${deletedSign} ${key}: ${fromValue}\n${indent}${addedSign} ${key}: ${toValue}`;
+        return `Property '${parrent}${key}' was updated. From ${getStyledValue(
+          fromValue,
+        )} to ${getStyledValue(toValue)}`;
+      }
+      const newParrent = parrent === '' ? `${key}.` : `${parrent}${key}.`;
+      return plainFormarter(body.value, newParrent);
     }
-    const value = _.isObject(body)
-      ? plainFormarter(body, TABcount + 1)
-      : body;
-    return `${indent}  ${key}: ${value}`;
+    return null;
   });
-  return `{\n${maped.join('\n')}\n${iterIndentBar.repeat(TABcount)}}`; */
-  return sorted;
+
+  return maped.filter((notNull) => notNull).join('\n');
 };
 
 export default plainFormarter;
