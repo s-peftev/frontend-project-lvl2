@@ -13,34 +13,44 @@ const getStyledValue = (value) => {
   return value;
 };
 
+const renderDeleted = (parrent, key) => `Property '${parrent}${key}' was removed`;
+
+const renderAdded = (body, parrent, key) => {
+  const value = _.isObject(body.value)
+    ? complexValuePlaceholder
+    : body.value;
+
+  return `Property '${parrent}${key}' was added with value: ${getStyledValue(
+    value,
+  )}`;
+};
+
+const renderUpdated = (body, parrent, key) => {
+  const changed = body.value;
+  const fromValue = _.isObject(changed.fromValue)
+    ? complexValuePlaceholder
+    : changed.fromValue;
+  const toValue = _.isObject(changed.toValue)
+    ? complexValuePlaceholder
+    : changed.toValue;
+
+  return `Property '${parrent}${key}' was updated. From ${getStyledValue(
+    fromValue,
+  )} to ${getStyledValue(toValue)}`;
+};
+
 const plainFormarter = (diff, parrent = '') => {
   const sorted = _.sortBy(Object.entries(diff), ([key]) => key);
   const maped = sorted.flatMap(([key, body]) => {
     if (isDeleted(body)) {
-      return `Property '${parrent}${key}' was removed`;
+      return renderDeleted(parrent, key);
     }
     if (isAdded(body)) {
-      const value = _.isObject(body.value)
-        ? complexValuePlaceholder
-        : body.value;
-
-      return `Property '${parrent}${key}' was added with value: ${getStyledValue(
-        value,
-      )}`;
+      return renderAdded(body, parrent, key);
     }
     if (isUpdated(body)) {
       if (Object.hasOwn(body.value, 'fromValue')) {
-        const changed = body.value;
-        const fromValue = _.isObject(changed.fromValue)
-          ? complexValuePlaceholder
-          : changed.fromValue;
-        const toValue = _.isObject(changed.toValue)
-          ? complexValuePlaceholder
-          : changed.toValue;
-
-        return `Property '${parrent}${key}' was updated. From ${getStyledValue(
-          fromValue,
-        )} to ${getStyledValue(toValue)}`;
+        return renderUpdated(body, parrent, key);
       }
       const newParrent = parrent === '' ? `${key}.` : `${parrent}${key}.`;
       return plainFormarter(body.value, newParrent);

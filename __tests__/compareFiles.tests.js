@@ -92,3 +92,9 @@ test('compareFiles - wrong filepath', () => {
   const filepath2 = getFixturePath('undefined2');
   expect(() => compareFiles(filepath1, filepath2)).toThrow();
 });
+
+test('compareFiles - wrong format name', () => {
+  const filepath1 = getFixturePath('yamlFile1.yml');
+  const filepath2 = getFixturePath('yamlFile2.yml');
+  expect(() => compareFiles(filepath1, filepath2, 'undefined format')).toThrow();
+});
