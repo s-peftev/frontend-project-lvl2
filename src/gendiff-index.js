@@ -3,16 +3,28 @@ import getParsedData from './parsers.js';
 import getFormarter from './formatters/index.js';
 
 const getDifference = (data1, data2, type) => {
-  const diff = {};
   const entriesData1 = Object.entries(data1);
 
-  _.map(entriesData1, ([key, value]) => {
+  _.reduce(entriesData1, (diff, [key, value]) => {
+    if (!_.has(data2, key)) {
+      const newDiff = { ...diff, [key]: { type, value } };
+      return newDiff;
+    }
+    return diff;
+  }, {});
+  /* _.map(entriesData1, ([key, value]) => {
     if (!_.has(data2, key)) {
       diff[key] = { type, value };
     }
-  });
+  }); */
 
-  return diff;
+  return _.reduce(entriesData1, (diff, [key, value]) => {
+    if (!_.has(data2, key)) {
+      const newDiff = { ...diff, [key]: { type, value } };
+      return newDiff;
+    }
+    return diff;
+  }, {});
 };
 
 const getIntersection = (data1, data2, callback) => {
