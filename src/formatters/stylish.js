@@ -71,12 +71,14 @@ const TYPE_RENDER_MAP = {
   },
 };
 
+const getResultRender = (body) => (_.has(body, 'value')
+  ? TYPE_RENDER_MAP[body.type]
+  : TYPE_RENDER_MAP.nestedComlex);
+
 const stylishFormarter = (diff, TABcount = 0) => {
   const sorted = _.sortBy(Object.entries(diff), ([key]) => key);
   const maped = sorted.map(([key, body]) => {
-    const resultRender = _.has(body, 'value')
-      ? TYPE_RENDER_MAP[body.type]
-      : TYPE_RENDER_MAP.nestedComlex;
+    const resultRender = getResultRender(body);
 
     return resultRender(key, body, stylishFormarter, TABcount);
   });

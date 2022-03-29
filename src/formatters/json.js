@@ -43,13 +43,15 @@ const TYPE_RENDER_MAP = {
   nestedComlex: () => null,
 };
 
+const getResultRender = (body) => (_.has(body, 'value')
+  ? TYPE_RENDER_MAP[body.type]
+  : TYPE_RENDER_MAP.nestedComlex);
+
 const jsonFormarter = (diffReport) => {
   const getFormattedString = (diff, parrent = '') => {
     const sorted = _.sortBy(Object.entries(diff), ([key]) => key);
     const maped = sorted.flatMap(([key, body]) => {
-      const resultRender = _.has(body, 'value')
-        ? TYPE_RENDER_MAP[body.type]
-        : TYPE_RENDER_MAP.nestedComlex;
+      const resultRender = getResultRender(body);
       return resultRender(body, parrent, key, getFormattedString);
     });
 
