@@ -5,9 +5,9 @@ import getFormarter from './formatters/index.js';
 const getDifference = (data1, data2, type) => {
   const diff = {};
   const entriesData1 = Object.entries(data1);
-
+  const data2keys = data2.keys();
   _.map(entriesData1, ([key, value]) => {
-    if (!Object.hasOwn(data2, key)) {
+    if (!data2keys.includes(key)) {
       diff[key] = { type, value };
     }
   });
@@ -18,9 +18,10 @@ const getDifference = (data1, data2, type) => {
 const getIntersection = (data1, data2, callback) => {
   const diff = {};
   const entriesData1 = Object.entries(data1);
+  const data2keys = data2.keys();
 
   _.map(entriesData1, ([key, value]) => {
-    if (Object.hasOwn(data2, key)) {
+    if (data2keys.includes(key)) {
       if (!_.isObject(value) || !_.isObject(data2[key])) {
         diff[key] = value === data2[key]
           ? { type: 'same', value }
@@ -56,5 +57,5 @@ export default (file1, file2, formarterName = 'stylish') => {
   const diff = getDiffReport(fileData1, fileData2);
   const formarter = getFormarter(formarterName);
 
-  return `${formarter(diff)}\n`;
+  return formarter(diff);
 };

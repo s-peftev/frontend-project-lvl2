@@ -21,7 +21,7 @@ const actualJson = ['[{"propertyName":"common.follow","diffType":"added", "value
   '{"propertyName":"group1.baz","diffType":"updated", "value":{"fromValue":"bas","toValue":"bars"}}',
   '{"propertyName":"group1.nest","diffType":"updated", "value":{"fromValue":"[complex value]","toValue":"str"}}',
   '{"propertyName":"group2","diffType":"deleted", "value":""}',
-  '{"propertyName":"group3","diffType":"added", "value":"[complex value]"}]\n'].join(',');
+  '{"propertyName":"group3","diffType":"added", "value":"[complex value]"}]'].join(',');
 
 test('compareFiles - test .json stylish format', () => {
   const filepath1 = getFixturePath('file1.json');
