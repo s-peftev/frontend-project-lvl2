@@ -56,5 +56,5 @@ export default (file1, file2, formarterName = 'stylish') => {
   const diff = getDiffReport(fileData1, fileData2);
   const formarter = getFormarter(formarterName);
 
-  return formarter(diff);
+  return `${formarter(diff)}\n`;
 };
