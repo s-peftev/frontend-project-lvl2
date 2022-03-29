@@ -5,9 +5,9 @@ import getFormarter from './formatters/index.js';
 const getDifference = (data1, data2, type) => {
   const diff = {};
   const entriesData1 = Object.entries(data1);
-  const data2keys = Object.keys(data2);
+
   _.map(entriesData1, ([key, value]) => {
-    if (!data2keys.includes(key)) {
+    if (!_.has(data2, key)) {
       diff[key] = { type, value };
     }
   });
@@ -18,10 +18,9 @@ const getDifference = (data1, data2, type) => {
 const getIntersection = (data1, data2, callback) => {
   const diff = {};
   const entriesData1 = Object.entries(data1);
-  const data2keys = Object.keys(data2);
 
   _.map(entriesData1, ([key, value]) => {
-    if (data2keys.includes(key)) {
+    if (_.has(data2, key)) {
       if (!_.isObject(value) || !_.isObject(data2[key])) {
         diff[key] = value === data2[key]
           ? { type: 'same', value }

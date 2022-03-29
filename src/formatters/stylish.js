@@ -24,7 +24,7 @@ const renderDAS = (key, body, diffSign, formartter, TABcount) => {
 const renderUpdated = (key, body, diffSign, formartter, TABcount) => {
   const indent = getIndent(TABcount);
 
-  if (Object.hasOwn(body.value, 'fromValue')) {
+  if (_.has(body.value, 'fromValue')) {
     const deletedSign = DIFF_SIGN_MAP.deleted;
     const addedSign = DIFF_SIGN_MAP.added;
     const changed = body.value;
@@ -74,7 +74,7 @@ const TYPE_RENDER_MAP = {
 const stylishFormarter = (diff, TABcount = 0) => {
   const sorted = _.sortBy(Object.entries(diff), ([key]) => key);
   const maped = sorted.map(([key, body]) => {
-    const resultRender = Object.hasOwn(body, 'value')
+    const resultRender = _.has(body, 'value')
       ? TYPE_RENDER_MAP[body.type]
       : TYPE_RENDER_MAP.nestedComlex;
 

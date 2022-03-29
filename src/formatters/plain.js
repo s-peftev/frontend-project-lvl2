@@ -47,7 +47,7 @@ const plainFormarter = (diff, parrent = '') => {
       return renderAdded(body, parrent, key);
     }
     if (isUpdated(body)) {
-      if (Object.hasOwn(body.value, 'fromValue')) {
+      if (_.has(body.value, 'fromValue')) {
         return renderUpdated(body, parrent, key);
       }
       const newParrent = parrent === '' ? `${key}.` : `${parrent}${key}.`;
