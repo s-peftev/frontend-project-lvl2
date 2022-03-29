@@ -5,19 +5,6 @@ import getFormarter from './formatters/index.js';
 const getDifference = (data1, data2, type) => {
   const entriesData1 = Object.entries(data1);
 
-  _.reduce(entriesData1, (diff, [key, value]) => {
-    if (!_.has(data2, key)) {
-      const newDiff = { ...diff, [key]: { type, value } };
-      return newDiff;
-    }
-    return diff;
-  }, {});
-  /* _.map(entriesData1, ([key, value]) => {
-    if (!_.has(data2, key)) {
-      diff[key] = { type, value };
-    }
-  }); */
-
   return _.reduce(entriesData1, (diff, [key, value]) => {
     if (!_.has(data2, key)) {
       const newDiff = { ...diff, [key]: { type, value } };
@@ -28,30 +15,30 @@ const getDifference = (data1, data2, type) => {
 };
 
 const getIntersection = (data1, data2, callback) => {
-  const diff = {};
   const entriesData1 = Object.entries(data1);
 
-  _.map(entriesData1, ([key, value]) => {
+  return _.reduce(entriesData1, (diff, [key, value]) => {
     if (_.has(data2, key)) {
       if (!_.isObject(value) || !_.isObject(data2[key])) {
-        diff[key] = value === data2[key]
+        const diffValue = value === data2[key]
           ? { type: 'same', value }
           : {
             type: 'updated',
             value: { fromValue: value, toValue: data2[key] },
           };
+        return { ...diff, [key]: diffValue };
       }
 
       if (_.isObject(value) && _.isObject(data2[key])) {
-        diff[key] = {
+        const diffValue = {
           type: 'updated',
           value: callback(value, data2[key]),
         };
+        return { ...diff, [key]: diffValue };
       }
     }
-  });
-
-  return diff;
+    return diff;
+  }, {});
 };
 
 const getDiffReport = (data1, data2) => {
