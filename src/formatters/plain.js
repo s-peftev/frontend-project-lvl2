@@ -16,9 +16,7 @@ const getStyledValue = (value) => {
 const renderDeleted = (parrent, key) => `Property '${parrent}${key}' was removed`;
 
 const renderAdded = (body, parrent, key) => {
-  const value = _.isObject(body.value)
-    ? complexValuePlaceholder
-    : body.value;
+  const value = _.isObject(body.value) ? complexValuePlaceholder : body.value;
 
   return `Property '${parrent}${key}' was added with value: ${getStyledValue(
     value,

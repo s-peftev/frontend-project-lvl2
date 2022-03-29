@@ -31,7 +31,7 @@ Options:
   -h, --help           display help for command
 ```
 
-- Comparing stylish format
+- Comparing with stylish formatter
 
 jsonFile1.json
 
@@ -100,53 +100,53 @@ jsonFile2.json
 
 ```console
 gendiff jsonFile1.json jsonFile2.json
-{                            
-    common: {                
-      + follow: false        
-        setting1: Value 1    
-      - setting2: 200        
-      - setting3: true       
-      + setting3: null       
-      + setting4: blah blah  
-      + setting5: {          
-            key5: value5     
-        }                    
-        setting6: {          
-          - doge: false      
-          + doge: {          
-                wow: so much 
-            }                
-            key: value       
-          + ops: vops        
-        }                    
-    }                        
-    group1: {                
-      - baz: bas             
-      + baz: bars            
-        foo: bar             
-      - nest: {              
-            key: value       
-        }                    
-      + nest: str            
-    }                        
-  - group2: {                
-        abc: 12345           
-        deep: {              
-            id: 45           
-        }                    
-    }                        
-  + group3: {                
-        deep: {              
-            id: {            
-                number: 45   
-            }                
-        }                    
-        fee: 100500          
-    }                        
-}                            
+{
+    common: {
+      + follow: false
+        setting1: Value 1
+      - setting2: 200
+      - setting3: true
+      + setting3: null
+      + setting4: blah blah
+      + setting5: {
+            key5: value5
+        }
+        setting6: {
+          - doge: false
+          + doge: {
+                wow: so much
+            }
+            key: value
+          + ops: vops
+        }
+    }
+    group1: {
+      - baz: bas
+      + baz: bars
+        foo: bar
+      - nest: {
+            key: value
+        }
+      + nest: str
+    }
+  - group2: {
+        abc: 12345
+        deep: {
+            id: 45
+        }
+    }
+  + group3: {
+        deep: {
+            id: {
+                number: 45
+            }
+        }
+        fee: 100500
+    }
+}
 ```
 
-- Comparing plain format
+- Comparing with plain formatter
 
 yamlFile1.yml
 
@@ -212,4 +212,11 @@ Property 'group1.baz' was updated. From 'bas' to 'bars'
 Property 'group1.nest' was updated. From [complex value] to 'str'
 Property 'group2' was removed
 Property 'group3' was added with value: [complex value]
+```
+
+- Comparing with json formatter
+
+```console
+gendiff yamlFile1.yml yamlFile2.yml --format json
+[{"propertyName":"common.follow","diffType":"added", "value":false},{"propertyName":"common.setting2","diffType":"deleted", "value":""},{"propertyName":"common.setting3","diffType":"updated", "value":{"fromValue":true,"toValue":null}},{"propertyName":"common.setting4","diffType":"added", "value":"blah blah"},{"propertyName":"common.setting5","diffType":"added", "value":"[complex value]"},{"propertyName":"common.setting6.doge","diffType":"updated", "value":{"fromValue":false,"toValue":"[complex value]"}},{"propertyName":"common.setting6.ops","diffType":"added", "value":"vops"},{"propertyName":"group1.baz","diffType":"updated", "value":{"fromValue":"bas","toValue":"bars"}},{"propertyName":"group1.nest","diffType":"updated", "value":{"fromValue":"[complex value]","toValue":"str"}},{"propertyName":"group2","diffType":"deleted", "value":""},{"propertyName":"group3","diffType":"added", "value":"[complex value]"}]
 ```
